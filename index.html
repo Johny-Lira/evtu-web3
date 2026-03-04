@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>e-VTU — Plataforma Web3 de Mobilidade Acadêmica</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1a3a5c;
+      --accent: #2ecc71;
+      --accent2: #3498db;
+      --accent3: #e74c3c;
+      --accent4: #f39c12;
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --gradient: linear-gradient(135deg, #1a3a5c 0%, #2563eb 60%, #0ea5e9 100%);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(26, 58, 92, 0.97);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 64px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    }
+    .nav-logo {
+      font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: 1px;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a {
+      color: #cbd5e1; text-decoration: none; font-size: 0.92rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      background: var(--gradient);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 7rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-badge {
+      background: rgba(46,204,113,0.18); border: 1px solid rgba(46,204,113,0.4);
+      color: var(--accent); padding: 0.35rem 1.1rem; border-radius: 999px;
+      font-size: 0.82rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 1.5rem; display: inline-block;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900;
+      color: #fff; line-height: 1.15; margin-bottom: 1.2rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: 1.15rem; color: #bfdbfe; max-width: 680px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn {
+      padding: 0.85rem 2rem; border-radius: 10px; font-weight: 700;
+      font-size: 0.97rem; cursor: pointer; border: none; text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+    .btn-primary { background: var(--accent); color: #0f2d1a; }
+    .btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.5); }
+    .hero-stats {
+      display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
+      margin-top: 3.5rem;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-size: 2.2rem; font-weight: 900; color: #fff; }
+    .hero-stat .lbl { font-size: 0.82rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ===== SECTION ===== */
+    section { padding: 5rem 2rem; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-tag {
+      display: inline-block; background: #dbeafe; color: #1d4ed8;
+      padding: 0.3rem 1rem; border-radius: 999px; font-size: 0.78rem;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.8rem;
+    }
+    h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); font-weight: 800; color: var(--primary); margin-bottom: 1rem; }
+    .section-lead { font-size: 1.07rem; color: var(--muted); max-width: 680px; margin-bottom: 3rem; }
+
+    /* ===== PROBLEM CARDS ===== */
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;
+    }
+    .problem-card {
+      background: var(--card); border-radius: 16px; padding: 1.8rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-left: 4px solid var(--accent3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .problem-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    .problem-card .icon { font-size: 2rem; margin-bottom: 0.8rem; }
+    .problem-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary); }
+    .problem-card p { font-size: 0.9rem; color: var(--muted); }
+
+    /* ===== ARCHITECTURE ===== */
+    #architecture { background: #fff; }
+    .arch-layers {
+      display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem;
+    }
+    .arch-layer {
+      display: flex; align-items: center; gap: 1.5rem;
+      background: var(--bg); border-radius: 14px; padding: 1.2rem 1.8rem;
+      border: 1px solid var(--border); transition: box-shadow 0.2s;
+    }
+    .arch-layer:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+    .arch-layer .layer-num {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1.1rem; color: #fff; flex-shrink: 0;
+    }
+    .arch-layer:nth-child(1) .layer-num { background: #6366f1; }
+    .arch-layer:nth-child(2) .layer-num { background: #0ea5e9; }
+    .arch-layer:nth-child(3) .layer-num { background: #10b981; }
+    .arch-layer:nth-child(4) .layer-num { background: #f59e0b; }
+    .arch-layer .layer-info h4 { font-size: 1rem; font-weight: 700; color: var(--primary); }
+    .arch-layer .layer-info p { font-size: 0.88rem; color: var(--muted); }
+    .arch-layer .layer-tech {
+      margin-left: auto; background: var(--primary); color: #fff;
+      padding: 0.3rem 0.9rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ===== CHARTS ===== */
+    #charts { background: var(--bg); }
+    .charts-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;
+    }
+    .chart-card {
+      background: var(--card); border-radius: 18px; padding: 1.8rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .chart-card h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 1.2rem; }
+    .chart-wrap { position: relative; height: 260px; }
+
+    /* ===== LGPD TABLE ===== */
+    #lgpd { background: #fff; }
+    .table-wrap { overflow-x: auto; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    table { width: 100%; border-collapse: collapse; background: var(--card); }
+    thead { background: var(--primary); color: #fff; }
+    th { padding: 1rem 1.2rem; text-align: left; font-size: 0.88rem; font-weight: 700; }
+    td { padding: 0.9rem 1.2rem; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    .badge {
+      display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-orange { background: #fef3c7; color: #92400e; }
+
+    /* ===== ROADMAP ===== */
+    #roadmap { background: var(--bg); }
+    .roadmap-timeline { position: relative; padding-left: 2.5rem; }
+    .roadmap-timeline::before {
+      content: ''; position: absolute; left: 10px; top: 0; bottom: 0;
+      width: 3px; background: linear-gradient(to bottom, #6366f1, #0ea5e9, #10b981, #f59e0b);
+      border-radius: 999px;
+    }
+    .roadmap-item { position: relative; margin-bottom: 2.5rem; }
+    .roadmap-item::before {
+      content: ''; position: absolute; left: -2.1rem; top: 0.4rem;
+      width: 18px; height: 18px; border-radius: 50%; border: 3px solid #fff;
+      box-shadow: 0 0 0 3px var(--accent2);
+    }
+    .roadmap-item:nth-child(1)::before { box-shadow: 0 0 0 3px #6366f1; }
+    .roadmap-item:nth-child(2)::before { box-shadow: 0 0 0 3px #0ea5e9; }
+    .roadmap-item:nth-child(3)::before { box-shadow: 0 0 0 3px #10b981; }
+    .roadmap-item:nth-child(4)::before { box-shadow: 0 0 0 3px #f59e0b; }
+    .roadmap-item .phase-tag {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--muted); margin-bottom: 0.3rem;
+    }
+    .roadmap-item h3 { font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 0.4rem; }
+    .roadmap-item p { font-size: 0.92rem; color: var(--muted); }
+    .roadmap-item .deliverables {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem;
+    }
+    .deliverable-tag {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.78rem; color: var(--text);
+    }
+
+    /* ===== STAGES ===== */
+    #stages { background: #fff; }
+    .stages-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;
+    }
+    .stage-card {
+      background: var(--bg); border-radius: 16px; padding: 1.8rem;
+      text-align: center; border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .stage-card:hover {
+      border-color: var(--accent2); transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .stage-card .stage-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 900; color: #fff; margin: 0 auto 1rem;
+    }
+    .stage-card:nth-child(1) .stage-num { background: #6366f1; }
+    .stage-card:nth-child(2) .stage-num { background: #0ea5e9; }
+    .stage-card:nth-child(3) .stage-num { background: #10b981; }
+    .stage-card:nth-child(4) .stage-num { background: #f59e0b; }
+    .stage-card:nth-child(5) .stage-num { background: #e74c3c; }
+    .stage-card h3 { font-size: 0.97rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; }
+    .stage-card p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ===== IMPACT ===== */
+    #impact { background: var(--gradient); color: #fff; }
+    #impact h2 { color: #fff; }
+    #impact .section-lead { color: #bfdbfe; }
+    .impact-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;
+    }
+    .impact-card {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px; padding: 1.8rem; backdrop-filter: blur(6px);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .impact-card:hover { background: rgba(255,255,255,0.18); transform: translateY(-4px); }
+    .impact-card .icon { font-size: 2.2rem; margin-bottom: 0.8rem; }
+    .impact-card h3 { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+    .impact-card p { font-size: 0.88rem; color: #bfdbfe; }
+
+    /* ===== HOSTING TABLE ===== */
+    #hosting { background: var(--bg); }
+
+    /* ===== DOWNLOAD ===== */
+    #download { background: #fff; text-align: center; }
+    .download-box {
+      background: var(--bg); border-radius: 20px; padding: 3rem 2rem;
+      max-width: 600px; margin: 0 auto; border: 2px dashed var(--border);
+    }
+    .download-box h3 { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 0.8rem; }
+    .download-box p { color: var(--muted); margin-bottom: 1.8rem; }
+    .download-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-download {
+      padding: 0.85rem 1.8rem; border-radius: 10px; font-weight: 700;
+      font-size: 0.95rem; cursor: pointer; border: none; text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .btn-copy { background: var(--primary); color: #fff; }
+    .btn-share { background: var(--accent); color: #0f2d1a; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--primary); color: #94a3b8; text-align: center;
+      padding: 2rem; font-size: 0.88rem;
+    }
+    footer strong { color: #fff; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      nav { padding: 0 1rem; }
+      .nav-links { display: none; }
+      section { padding: 3.5rem 1rem; }
+      .arch-layer { flex-wrap: wrap; }
+      .arch-layer .layer-tech { margin-left: 0; }
+    }
+
+    /* ===== ANIMATIONS ===== */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== TOOLTIP ===== */
+    [data-tooltip] { position: relative; cursor: help; }
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+      background: #1e293b; color: #fff; padding: 0.4rem 0.8rem; border-radius: 6px;
+      font-size: 0.78rem; white-space: nowrap; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    [data-tooltip]:hover::after { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">e<span>-VTU</span> Web3</div>
+  <ul class="nav-links">
+    <li><a href="#problema">Problema</a></li>
+    <li><a href="#architecture">Arquitetura</a></li>
+    <li><a href="#charts">Dados</a></li>
+    <li><a href="#lgpd">LGPD</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#impact">Impacto</a></li>
+    <li><a href="#download">Whitepaper</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Fórum Acadêmico RS · Pré-Projeto Web3</div>
+  <h1>e-VTU: Educação e<br/><span>Mobilidade Acadêmica</span><br/>via Blockchain</h1>
+  <p>Uma plataforma descentralizada que une educação, cultura e tecnologia Web3 para democratizar o acesso ao ensino superior nos municípios do Rio Grande do Sul.</p>
+  <div class="hero-btns">
+    <a href="#architecture" class="btn btn-primary">&#9654; Explorar Arquitetura</a>
+    <a href="#download" class="btn btn-outline">&#8595; Ver Whitepaper</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">Web3</div><div class="lbl">Tecnologia Base</div></div>
+    <div class="hero-stat"><div class="num">5</div><div class="lbl">Estágios Colaborativos</div></div>
+    <div class="hero-stat"><div class="num">R$0</div><div class="lbl">Custo de Hospedagem</div></div>
+    <div class="hero-stat"><div class="num">LGPD</div><div class="lbl">Conformidade Total</div></div>
+  </div>
+</section>
+
+<!-- PROBLEMA -->
+<section id="problema">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Contexto</span>
+    <h2>O Problema que o e-VTU Resolve</h2>
+    <p class="section-lead">Milhões de brasileiros são excluídos do ensino superior por barreiras geográficas, financeiras e tecnológicas. O e-VTU propõe soluções concretas para cada um desses obstáculos.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="icon">&#128176;</div>
+        <h3>Altos Custos Acadêmicos</h3>
+        <p>Deslocamento, moradia e material didático afastam estudantes de municípios distantes das universidades.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">&#128274;</div>
+        <h3>Centralização de Dados</h3>
+        <p>Plataformas proprietárias concentram dados educacionais, criando dependência tecnológica e riscos de privacidade.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">&#128246;</div>
+        <h3>Baixa Inclusão Digital</h3>
+        <p>Regiões periféricas carecem de infraestrutura digital acessível para participar da educação online de qualidade.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">&#128101;</div>
+        <h3>Falta de Colaboração Transparente</h3>
+        <p>Ausência de mecanismos confiáveis para co-criação de conteúdo com registro de autoria e governança democrática.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARQUITETURA -->
+<section id="architecture">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Tecnologia</span>
+    <h2>Arquitetura Web3 em 4 Camadas</h2>
+    <p class="section-lead">A plataforma e-VTU é construída sobre uma arquitetura modular e descentralizada, utilizando exclusivamente ferramentas de software livre.</p>
+    <div class="arch-layers">
+      <div class="arch-layer">
+        <div class="layer-num">1</div>
+        <div class="layer-info">
+          <h4>Camada de Infraestrutura</h4>
+          <p>Nó Ethereum para comunicação com a rede blockchain descentralizada</p>
+        </div>
+        <div class="layer-tech">Geth (Go-Ethereum)</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-num">2</div>
+        <div class="layer-info">
+          <h4>Camada de Lógica de Negócio</h4>
+          <p>Contratos inteligentes que definem regras de produção colaborativa, certificação e governança</p>
+        </div>
+        <div class="layer-tech">Solidity + Truffle</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-num">3</div>
+        <div class="layer-info">
+          <h4>Camada de Integração</h4>
+          <p>Biblioteca que conecta o front-end à blockchain, permitindo transações e leitura de dados on-chain</p>
+        </div>
+        <div class="layer-tech">Web3.js / Ethers.js</div>
+      </div>
+      <div class="arch-layer">
+        <div class="layer-num">4</div>
+        <div class="layer-info">
+          <h4>Camada de Interface</h4>
+          <p>Aplicação web responsiva e acessível, otimizada para dispositivos de baixo custo e conexões lentas</p>
+        </div>
+        <div class="layer-tech">React + TailwindCSS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHARTS -->
+<section id="charts">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Dados &amp; Análise</span>
+    <h2>Panorama do Projeto em Números</h2>
+    <p class="section-lead">Visualizações interativas que mostram a distribuição tecnológica, o cronograma de implementação e o modelo de custos do e-VTU.</p>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>&#128202; Stack Tecnológico — Distribuição de Esforço</h3>
+        <div class="chart-wrap"><canvas id="chartStack"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>&#128197; Cronograma por Fase (meses)</h3>
+        <div class="chart-wrap"><canvas id="chartRoadmap"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>&#128184; Economia de Custos: Tradicional vs. e-VTU</h3>
+        <div class="chart-wrap"><canvas id="chartCost"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>&#127919; Impacto por Eixo Estratégico</h3>
+        <div class="chart-wrap"><canvas id="chartImpact"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LGPD -->
+<section id="lgpd">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Conformidade</span>
+    <h2>Conformidade com a LGPD</h2>
+    <p class="section-lead">O e-VTU implementa mecanismos técnicos específicos para garantir o pleno cumprimento da Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018).</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Direito LGPD</th>
+            <th>Mecanismo Técnico</th>
+            <th>Implementação</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Acesso aos Dados</strong></td>
+            <td>Painel do usuário com exportação via API</td>
+            <td>Dashboard React + IPFS</td>
+            <td><span class="badge badge-green">Planejado</span></td>
+          </tr>
+          <tr>
+            <td><strong>Retificação</strong></td>
+            <td>Atualização off-chain com novo hash on-chain</td>
+            <td>Contrato AcademicIdentity.sol</td>
+            <td><span class="badge badge-blue">Em Design</span></td>
+          </tr>
+          <tr>
+            <td><strong>Eliminação</strong></td>
+            <td>Crypto-shredding das chaves de criptografia</td>
+            <td>Protocolo criptográfico AES-256</td>
+            <td><span class="badge badge-blue">Em Design</span></td>
+          </tr>
+          <tr>
+            <td><strong>Portabilidade</strong></td>
+            <td>Exportação JSON/CSV assinado digitalmente</td>
+            <td>API REST + assinatura ECDSA</td>
+            <td><span class="badge badge-green">Planejado</span></td>
+          </tr>
+          <tr>
+            <td><strong>Consentimento</strong></td>
+            <td>Smart contract de consentimento</td>
+            <td>ConsentContract.sol</td>
+            <td><span class="badge badge-green">Planejado</span></td>
+          </tr>
+          <tr>
+            <td><strong>Revogação</strong></td>
+            <td>Transação de revogação na blockchain</td>
+            <td>Evento RevocationEvent on-chain</td>
+            <td><span class="badge badge-orange">Pesquisa</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Cronograma</span>
+    <h2>Roadmap de Implementação</h2>
+    <p class="section-lead">Quatro fases progressivas ao longo de 18 meses, com entregáveis claros e marcos verificáveis em cada etapa.</p>
+    <div class="roadmap-timeline">
+      <div class="roadmap-item">
+        <div class="phase-tag">Fase 0 · Meses 1–3</div>
+        <h3>Fundação</h3>
+        <p>Estabelecimento da base técnica e documental do projeto, com repositório público e contratos inteligentes básicos.</p>
+        <div class="deliverables">
+          <span class="deliverable-tag">Repositório GitHub</span>
+          <span class="deliverable-tag">Documentação técnica</span>
+          <span class="deliverable-tag">Contratos básicos</span>
+          <span class="deliverable-tag">Site institucional</span>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase-tag">Fase 1 · Meses 4–6</div>
+        <h3>MVP — Produto Mínimo Viável</h3>
+        <p>Lançamento do portal de cadastro Web3, painel do estudante e primeiro módulo de produção colaborativa.</p>
+        <div class="deliverables">
+          <span class="deliverable-tag">Portal Web3</span>
+          <span class="deliverable-tag">Dashboard estudante</span>
+          <span class="deliverable-tag">Módulo colaborativo v1</span>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase-tag">Fase 2 · Meses 7–12</div>
+        <h3>Expansão e Piloto</h3>
+        <p>Integração com 5 municípios piloto, sistema de certificação NFT e fórum colaborativo completo.</p>
+        <div class="deliverables">
+          <span class="deliverable-tag">Mobilidade acadêmica</span>
+          <span class="deliverable-tag">NFT Certificados</span>
+          <span class="deliverable-tag">Fórum colaborativo</span>
+          <span class="deliverable-tag">5 municípios piloto</span>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase-tag">Fase 3 · Meses 13–18</div>
+        <h3>Consolidação e Governança</h3>
+        <p>Ativação da DAO, integração com instituições parceiras e auditoria de segurança e conformidade LGPD.</p>
+        <div class="deliverables">
+          <span class="deliverable-tag">DAO ativa</span>
+          <span class="deliverable-tag">Parceiros institucionais</span>
+          <span class="deliverable-tag">Auditoria de segurança</span>
+          <span class="deliverable-tag">LGPD certificada</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGES -->
+<section id="stages">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Metodologia</span>
+    <h2>Produção Colaborativa em 5 Estágios</h2>
+    <p class="section-lead">O modelo colaborativo do e-VTU é estruturado em cinco estágios progressivos, com validação descentralizada em cada etapa.</p>
+    <div class="stages-grid">
+      <div class="stage-card">
+        <div class="stage-num">1</div>
+        <h3>Definição do Escopo</h3>
+        <p>Definição coletiva de objetivos, papéis e recursos com apoio de Copiloto IA. Escopo registrado na blockchain.</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-num">2</div>
+        <h3>Escolha da Plataforma</h3>
+        <p>Seleção de ferramentas de software livre do catálogo curado do e-VTU, compatíveis com a infraestrutura blockchain.</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-num">3</div>
+        <h3>Criação da Rede</h3>
+        <p>Configuração da infraestrutura blockchain com templates Geth pré-configurados e scripts de inicialização automatizados.</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-num">4</div>
+        <h3>Desenvolvimento da DApp</h3>
+        <p>Desenvolvimento colaborativo com controle de versão Git e registro de contribuições na blockchain via Truffle/Hardhat.</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-num">5</div>
+        <h3>Interface e Lançamento</h3>
+        <p>Integração do front-end React com contratos via Web3.js, testes de usabilidade e publicação na infraestrutura descentralizada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section id="impact">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Transformação Social</span>
+    <h2>Impacto Social Esperado</h2>
+    <p class="section-lead">O e-VTU vai além da tecnologia — é um instrumento de transformação social que coloca as comunidades no centro do processo educativo.</p>
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="icon">&#128187;</div>
+        <h3>Inclusão Digital</h3>
+        <p>Estudantes aprendem blockchain, IA e software livre, preparando-se para o mercado de trabalho do século XXI.</p>
+      </div>
+      <div class="impact-card">
+        <div class="icon">&#128205;</div>
+        <h3>Mobilidade Sem Fronteiras</h3>
+        <p>Participação em programas de mobilidade acadêmica virtual, eliminando custos de deslocamento e moradia.</p>
+      </div>
+      <div class="impact-card">
+        <div class="icon">&#9878;</div>
+        <h3>Governança Democrática</h3>
+        <p>Modelo DAO garante decisões democráticas e transparentes, com registro imutável de todas as deliberações.</p>
+      </div>
+      <div class="impact-card">
+        <div class="icon">&#128081;</div>
+        <h3>Soberania Digital</h3>
+        <p>Comunidades reduzem dependência de plataformas comerciais, construindo capacidade técnica local sustentável.</p>
+      </div>
+      <div class="impact-card">
+        <div class="icon">&#127807;</div>
+        <h3>Ecossistema Local</h3>
+        <p>Surgimento de desenvolvedores Web3, empreendedores sociais e educadores digitais nas regiões atendidas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOSTING -->
+<section id="hosting">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Infraestrutura</span>
+    <h2>Hospedagem Descentralizada — Custo Zero</h2>
+    <p class="section-lead">A estratégia de hospedagem do e-VTU elimina custos operacionais por meio de serviços gratuitos de infraestrutura descentralizada.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Serviço</th>
+            <th>Custo</th>
+            <th>Capacidade</th>
+            <th>Uso no e-VTU</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-tooltip="Armazenamento peer-to-peer descentralizado"><strong>IPFS via Fleek</strong></td>
+            <td><span class="badge badge-green">Gratuito (OSS)</span></td>
+            <td>Ilimitado</td>
+            <td>Conteúdo estático e arquivos acadêmicos</td>
+          </tr>
+          <tr>
+            <td><strong>Vercel Free Tier</strong></td>
+            <td><span class="badge badge-green">Gratuito</span></td>
+            <td>100 GB/mês</td>
+            <td>Front-end React/Next.js com CDN global</td>
+          </tr>
+          <tr>
+            <td><strong>GitHub Pages</strong></td>
+            <td><span class="badge badge-green">Gratuito</span></td>
+            <td>1 GB</td>
+            <td>Documentação e site institucional</td>
+          </tr>
+          <tr>
+            <td><strong>Web3.Storage</strong></td>
+            <td><span class="badge badge-green">Gratuito até 5 GB</span></td>
+            <td>5 GB</td>
+            <td>Documentos e certificados acadêmicos</td>
+          </tr>
+          <tr>
+            <td><strong>Ethereum Sepolia</strong></td>
+            <td><span class="badge badge-green">Gratuito (testnet)</span></td>
+            <td>Ilimitado</td>
+            <td>Contratos inteligentes em desenvolvimento</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="section-inner fade-in">
+    <span class="section-tag">Whitepaper</span>
+    <h2>Acesse o Documento Completo</h2>
+    <p class="section-lead">O whitepaper completo do e-VTU está disponível para leitura, download e compartilhamento.</p>
+    <div class="download-box">
+      <h3>&#128196; Whitepaper e-VTU v1.0</h3>
+      <p>Documento técnico completo com arquitetura, conformidade LGPD, roadmap e modelo de impacto social. Escrito em português claro e objetivo.</p>
+      <div class="download-btns">
+        <button class="btn-download btn-copy" onclick="copyLink()">&#128203; Copiar Link</button>
+        <button class="btn-download btn-share" onclick="shareDoc()">&#8679; Compartilhar</button>
+      </div>
+      <p id="copy-msg" style="margin-top:1rem;color:#10b981;font-weight:700;display:none;">&#10003; Link copiado com sucesso!</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>e-VTU — Fórum Acadêmico RS</strong> &nbsp;·&nbsp; Plataforma Web3 de Mobilidade Acadêmica e Inclusão Social</p>
+  <p style="margin-top:0.5rem;">Análise e estruturação técnica: <strong>Manus AI</strong> &nbsp;·&nbsp; Março de 2026 &nbsp;·&nbsp; Software Livre &amp; Código Aberto</p>
+</footer>
+
+<script>
+// ===== INTERSECTION OBSERVER (fade-in) =====
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ===== CHART 1: Stack Tecnológico =====
+new Chart(document.getElementById('chartStack'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Front-end (React/TS)', 'Smart Contracts (Solidity)', 'Integração Web3.js', 'Infraestrutura (Geth/IPFS)', 'Testes & DevOps'],
+    datasets: [{
+      data: [30, 25, 20, 15, 10],
+      backgroundColor: ['#6366f1','#0ea5e9','#10b981','#f59e0b','#e74c3c'],
+      borderWidth: 0,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12, boxWidth: 12 } }
+    }
+  }
+});
+
+// ===== CHART 2: Roadmap =====
+new Chart(document.getElementById('chartRoadmap'), {
+  type: 'bar',
+  data: {
+    labels: ['Fase 0\nFundação', 'Fase 1\nMVP', 'Fase 2\nExpansão', 'Fase 3\nConsolidação'],
+    datasets: [{
+      label: 'Duração (meses)',
+      data: [3, 3, 6, 6],
+      backgroundColor: ['#6366f1','#0ea5e9','#10b981','#f59e0b'],
+      borderRadius: 8, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, max: 8, ticks: { stepSize: 2 }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ===== CHART 3: Custo =====
+new Chart(document.getElementById('chartCost'), {
+  type: 'bar',
+  data: {
+    labels: ['Hospedagem', 'Infraestrutura', 'Certificação', 'Distribuição'],
+    datasets: [
+      {
+        label: 'Modelo Tradicional (R$/mês)',
+        data: [800, 1200, 500, 300],
+        backgroundColor: 'rgba(231,76,60,0.75)',
+        borderRadius: 6
+      },
+      {
+        label: 'e-VTU Web3 (R$/mês)',
+        data: [0, 0, 0, 0],
+        backgroundColor: 'rgba(46,204,113,0.75)',
+        borderRadius: 6
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12, boxWidth: 12 } } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: v => 'R$' + v } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ===== CHART 4: Impacto =====
+new Chart(document.getElementById('chartImpact'), {
+  type: 'radar',
+  data: {
+    labels: ['Inclusão Digital', 'Mobilidade Acadêmica', 'Governança Democrática', 'Soberania Digital', 'Ecossistema Local', 'Conformidade LGPD'],
+    datasets: [{
+      label: 'Potencial de Impacto',
+      data: [90, 85, 80, 88, 75, 92],
+      backgroundColor: 'rgba(99,102,241,0.18)',
+      borderColor: '#6366f1',
+      pointBackgroundColor: '#6366f1',
+      pointRadius: 5,
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      r: {
+        beginAtZero: true, max: 100,
+        ticks: { stepSize: 25, font: { size: 10 } },
+        grid: { color: '#e2e8f0' },
+        pointLabels: { font: { size: 10 } }
+      }
+    }
+  }
+});
+
+// ===== COPY / SHARE =====
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    document.getElementById('copy-msg').style.display = 'block';
+    setTimeout(() => document.getElementById('copy-msg').style.display = 'none', 3000);
+  });
+}
+function shareDoc() {
+  if (navigator.share) {
+    navigator.share({ title: 'e-VTU Whitepaper Web3', url: window.location.href });
+  } else {
+    copyLink();
+  }
+}
+</script>
+</body>
+</html>
