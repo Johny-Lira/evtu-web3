@@ -1,0 +1,25 @@
+# Robots.txt para e-VTU Web3 Platform
+# Última atualização: Março de 2026
+
+# Permitir acesso a todos os buscadores
+User-agent: *
+Allow: /
+Disallow: /assets/private/
+Disallow: *.pdf$
+Disallow: *.doc$
+
+# Sitemap
+Sitemap: https://Johny-Lira.github.io/evtu-web3/sitemap.xml
+
+# Crawl delay (em segundos)
+Crawl-delay: 1
+
+# Regras específicas para Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Regras específicas para Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
